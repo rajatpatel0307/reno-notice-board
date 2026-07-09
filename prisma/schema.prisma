@@ -3,17 +3,29 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
 model Notice {
   id          Int      @id @default(autoincrement())
   title       String
-  description String
-  category    String   @default("General")
-  location    String
-  contact     String
+  body        String   @db.Text
+  category    Category
+  priority    Priority
+  publishDate DateTime
+  imageUrl    String?  @db.Text
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+enum Category {
+  Exam
+  Event
+  General
+}
+
+enum Priority {
+  Normal
+  Urgent
 }
