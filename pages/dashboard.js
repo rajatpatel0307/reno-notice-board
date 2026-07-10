@@ -3,7 +3,6 @@ import Link from "next/link";
 import { toast } from "react-toastify";
 import {
   FiAlertCircle,
-  FiCalendar,
   FiCheckCircle,
   FiClipboard,
   FiFileText,
@@ -18,21 +17,10 @@ import NoticeCard from "../components/NoticeCard";
 const statCards = [
   { key: "total", label: "Total Notices", Icon: FiClipboard, color: "bg-blue-50 text-blue-700 border-blue-100" },
   { key: "exam", label: "Exam Notices", Icon: FiFileText, color: "bg-violet-50 text-violet-700 border-violet-100" },
-  { key: "event", label: "Event Notices", Icon: FiCalendar, color: "bg-amber-50 text-amber-700 border-amber-100" },
+  { key: "event", label: "Event Notices", Icon: FiGrid, color: "bg-amber-50 text-amber-700 border-amber-100" },
   { key: "general", label: "General Notices", Icon: FiGrid, color: "bg-sky-50 text-sky-700 border-sky-100" },
   { key: "normal", label: "Normal Priority Notices", Icon: FiCheckCircle, color: "bg-emerald-50 text-emerald-700 border-emerald-100" },
   { key: "urgent", label: "Urgent Priority Notices", Icon: FiAlertCircle, color: "bg-red-50 text-red-700 border-red-100" },
-];
-
-const dateRanges = [
-  { label: "All Dates", value: "All" },
-  { label: "Last 7 days", value: "7" },
-  { label: "Last 15 days", value: "15" },
-  { label: "Last 30 days", value: "30" },
-  { label: "Last 45 days", value: "45" },
-  { label: "Last 60 days", value: "60" },
-  { label: "Last 90 days", value: "90" },
-  { label: "Custom Date", value: "Custom" },
 ];
 
 export default function DashboardPage() {
@@ -43,9 +31,6 @@ export default function DashboardPage() {
     search: "",
     category: "All",
     priority: "All",
-    dateRange: "All",
-    startDate: "",
-    endDate: "",
   });
 
   async function fetchNotices() {
@@ -95,28 +80,8 @@ export default function DashboardPage() {
         notice.category.toLowerCase().includes(search);
       const matchesCategory = filters.category === "All" || notice.category === filters.category;
       const matchesPriority = filters.priority === "All" || notice.priority === filters.priority;
-      const noticeDate = new Date(notice.publishDate);
-      const now = new Date();
-      let matchesDateRange = true;
 
-      if (filters.dateRange !== "All" && filters.dateRange !== "Custom") {
-        const earliest = new Date();
-        earliest.setDate(now.getDate() - Number(filters.dateRange));
-        earliest.setHours(0, 0, 0, 0);
-        matchesDateRange = noticeDate >= earliest && noticeDate <= now;
-      }
-
-      if (filters.dateRange === "Custom") {
-        const start = filters.startDate ? new Date(filters.startDate) : null;
-        const end = filters.endDate ? new Date(filters.endDate) : null;
-
-        if (start) start.setHours(0, 0, 0, 0);
-        if (end) end.setHours(23, 59, 59, 999);
-
-        matchesDateRange = (!start || noticeDate >= start) && (!end || noticeDate <= end);
-      }
-
-      return matchesSearch && matchesCategory && matchesPriority && matchesDateRange;
+      return matchesSearch && matchesCategory && matchesPriority;
     });
   }, [filters, notices]);
 
@@ -130,9 +95,6 @@ export default function DashboardPage() {
       search: "",
       category: "All",
       priority: "All",
-      dateRange: "All",
-      startDate: "",
-      endDate: "",
     });
   }
 
@@ -211,25 +173,6 @@ export default function DashboardPage() {
                 </select>
               </label>
 
-              <label className="grid gap-2">
-                <span className="inline-flex items-center gap-2 text-sm font-semibold text-gray-700">
-                  <FiCalendar />
-                  Date Range
-                </span>
-                <select
-                  name="dateRange"
-                  value={filters.dateRange}
-                  onChange={updateFilter}
-                  className="rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                >
-                  {dateRanges.map((range) => (
-                    <option key={range.value} value={range.value}>
-                      {range.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
               <button
                 type="button"
                 onClick={clearFilters}
@@ -239,37 +182,6 @@ export default function DashboardPage() {
                 Clear
               </button>
             </div>
-
-            {filters.dateRange === "Custom" ? (
-              <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <label className="grid gap-2">
-                  <span className="inline-flex items-center gap-2 text-sm font-semibold text-gray-700">
-                    <FiCalendar />
-                    Start Date
-                  </span>
-                  <input
-                    type="date"
-                    name="startDate"
-                    value={filters.startDate}
-                    onChange={updateFilter}
-                    className="rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                  />
-                </label>
-                <label className="grid gap-2">
-                  <span className="inline-flex items-center gap-2 text-sm font-semibold text-gray-700">
-                    <FiCalendar />
-                    End Date
-                  </span>
-                  <input
-                    type="date"
-                    name="endDate"
-                    value={filters.endDate}
-                    onChange={updateFilter}
-                    className="rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                  />
-                </label>
-              </div>
-            ) : null}
             </section>
           </aside>
 
